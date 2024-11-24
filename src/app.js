@@ -57,11 +57,29 @@ app.put('/livros/:id', async(req, res) => {
             return res.status(400).json({error: "Livro não encontrado."})
         }
     
-        res.status(200).json(livro);
+        return res.status(200).json(livro);
     } catch (error) {
         console.log(error);
         
         return res.status(500).json({error: "Erro ao atualizar livro."})
+    }
+})
+
+app.delete('/livros/:id', async(req, res) => {
+    try {
+        const {id} = req.params;
+
+        const livro = await Livro.findByIdAndDelete(id);
+        console.log(livro)
+
+        if(!livro){
+            return res.status(400).json({error: 'Nenhum livro encontrado.'});
+        }
+
+        return res.status(200).json({message: "Livro excluido com sucesso.", livro});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error: "Erro ao excluir livro."})
     }
 })
 
