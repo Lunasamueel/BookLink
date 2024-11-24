@@ -3,6 +3,7 @@ import Livro from './models/Livro.js';
 import './config/db.js';
 
 
+
 const app = express();
 // import mongoose from 'mongoose';
 // import bodyParser from "body-parser";
@@ -35,5 +36,35 @@ app.post("/livros", async (req, res) => {
       res.status(500).json({ message: 'Erro ao criar livro' });
     }
 })
+  
+
+app.put('/livros/:id', async(req, res) => {
+    
+    try {
+        const {id} = req.params;
+        const {titulo, editora, preco, anoPublicacao, paginas} = req.body;
+
+        if(!titulo || !editora || !preco || !anoPublicacao || !paginas){
+            return res.status(400).json({error: "Todos os campos são obrigatórios."});
+        }
+    
+        const livro = await Livro.findByIdAndUpdate(id,
+            {titulo, editora, preco, anoPublicacao, paginas},
+            {new: true, runValidators: true}
+        );
+    
+        if(!livro){
+            return res.status(400).json({error: "Livro não encontrado."})
+        }
+    
+        res.status(200).json(livro);
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({error: "Erro ao atualizar livro."})
+    }
+})
+
+
 
 export default app;
