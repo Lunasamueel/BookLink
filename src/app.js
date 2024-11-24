@@ -61,7 +61,8 @@ app.get('/livros/editora/:editora', async(req, res) => {
 })
 
 
-app.post("/livros", async (req, res) => {
+app.post("/livros", async (req, res) => { 
+    console.log("log teste")
     try {
         const {titulo, isbn, anoPublicacao, editora, preco, paginas} = req.body;
 
