@@ -1,11 +1,40 @@
 import '../config/db.js';
 import Livro from '../models/Livro.js'
 
+// bucar por nome de livro similar
+
+
 class LivroController {
 
     static async listarLivros(req, res) {
         const listaLivros = await Livro.find({});
         res.status(200).json(listaLivros);
+    }
+
+    static async buscarLivroPorTitulo(req, res){
+        try {
+            const titulo = req.params.titulo;
+            console.log(titulo, typeof(titulo));
+            
+
+            if(titulo.length === 0){
+                res.status(400).json({error: "O titulo do livro está vazio."})
+            }
+    
+            const livro = await Livro.find({
+                titulo: { $regex: titulo, $options: 'i' }
+              })
+    
+              if (!livro) {
+                return res.status(400).json({ error: 'Nenhum livro encontrado.' });
+            }
+    
+            return res.status(200).json({ message: "Livro encontrado com sucesso.", livro }); 
+        } catch (error) {
+            console.error(error);
+            // Retorna um erro 500 caso ocorra algum problema
+            return res.status(500).json({ error: 'Erro ao buscar os livros por titulo' });
+        }
     }
 
     static async buscarLivroPorId(req, res) {
