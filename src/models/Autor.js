@@ -2,25 +2,26 @@ import mongoose from "mongoose";
 
 const AutorSchema = new mongoose.Schema({
     id: {
-        Type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId
     },
     nome: {
-        Type: String,
+        type: String,
         require: true
     },
-    nascionalidade: {
-        Type: String,
+    nacionalidade: {
+        type: String,
         require: true
     },
     dataNascimento: {
-        Type: Date,
+        type: Date,
         require: true
     },
     livros: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Livro'
     }],
-})
+    
+}, {versionKey: false})
 
 const Autor = mongoose.model('Autor', AutorSchema);
 

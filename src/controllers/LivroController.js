@@ -18,7 +18,7 @@ class LivroController {
             
 
             if(titulo.length === 0){
-                res.status(400).json({error: "O titulo do livro está vazio."})
+                return res.status(400).json({error: "O titulo do livro está vazio."})
             }
     
             const livro = await Livro.find({
