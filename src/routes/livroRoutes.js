@@ -13,10 +13,4 @@ routes.post('/livros', LivroController.cadastrarLivro);
 routes.put('/livros/:id', LivroController.atualizarLivro);
 routes.delete('/livros/:id', LivroController.excluirLivro);
 
-routes.get('/autores', AutorController.listarAutores);
-routes.get('/autores/:id', AutorController.buscaAutorPorId);
-routes.post('/autores', AutorController.cadastrarAutor);
-routes.put('/autores/:id', AutorController.atualizarAutor);
-routes.delete('/autores/:id', AutorController.excluirAutor);
-
 export default routes;

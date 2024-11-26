@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';  
+import Autor from './Autor.js'
 
 const LivroSchema = new mongoose.Schema({
     id: {
@@ -23,6 +24,10 @@ const LivroSchema = new mongoose.Schema({
     anoPublicacao: {
         type: Number,
         require: true
+    },
+    autor: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Autor' // Referência ao modelo Autor
     }
 }, {versionKey: false})
 

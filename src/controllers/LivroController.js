@@ -82,10 +82,12 @@ class LivroController {
 
     static async cadastrarLivro(req, res) {
         try {
-            const { titulo, isbn, anoPublicacao, editora, preco, paginas } = req.body;
+            const { titulo, isbn, anoPublicacao, editora, preco, paginas, autor } = req.body;
+            console.log(autor);
+            
 
             const NovoLivro = new Livro({
-                titulo, isbn, anoPublicacao, editora, preco, paginas
+                titulo, isbn, anoPublicacao, editora, preco, paginas, autor
             })
 
             await NovoLivro.save();
