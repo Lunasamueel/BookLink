@@ -1,21 +1,16 @@
 import '../config/db.js';
 import Livro from '../models/Livro.js'
 
-// bucar por nome de livro similar
-
-
 class LivroController {
 
     static async listarLivros(req, res) {
-        const listaLivros = await Livro.find({});
+        const listaLivros = await Livro.find({}).populate('autor');
         res.status(200).json(listaLivros);
     }
 
     static async buscarLivroPorTitulo(req, res){
         try {
             const titulo = req.params.titulo;
-            console.log(titulo, typeof(titulo));
-            
 
             if(titulo.length === 0){
                 return res.status(400).json({error: "O titulo do livro está vazio."})
@@ -37,12 +32,25 @@ class LivroController {
         }
     }
 
+    
+    static async cadastrarLivro(req, res) {
+        try {
+   
+           const livro = req.body;    
+           
+           if(!livro){
+            res.status(400).json({ error: "Não foi possivel cadastrar o livro" });
+           }
+           await Livro.create(livro);
+           res.status(201).json({ message: 'Livro criado com sucesso', livro });
+          } catch (error) {
+            res.status(500).json({ message: 'Erro no servidor', error: error.message });
+          }
+    }
+
     static async buscarLivroPorId(req, res) {
         try {
-            const { id } = req.params;
-
-            const livro = await Livro.findById(id);
-            console.log(livro)
+            const livro = await Livro.findById(req.params.id).populate('autor');
 
             if (!livro) {
                 return res.status(400).json({ error: 'Nenhum livro encontrado.' });
@@ -80,24 +88,6 @@ class LivroController {
         }
     }
 
-    static async cadastrarLivro(req, res) {
-        try {
-            const { titulo, isbn, anoPublicacao, editora, preco, paginas, autor } = req.body;
-            console.log(autor);
-            
-
-            const NovoLivro = new Livro({
-                titulo, isbn, anoPublicacao, editora, preco, paginas, autor
-            })
-
-            await NovoLivro.save();
-            res.status(201).json({ message: 'livro criado com sucesso!', livro: NovoLivro });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Erro ao criar livro' });
-        }
-    }
-
     static async atualizarLivro(req, res) {
         try {
             const { id } = req.params;
@@ -127,8 +117,6 @@ class LivroController {
     // o metodo busca todos os livros por um preço igual ou abaixo ao passado por parâmetro
     static async buscarLivroPorPreco(req, res) {
         const { preco } = req.params;
-        console.log('preco ' + preco);
-
 
         if (isNaN(preco)) {
             return res.status(400).json({ error: 'O parâmetro maxPreco deve ser um número válido.' });
@@ -147,7 +135,6 @@ class LivroController {
             const { id } = req.params;
 
             const livro = await Livro.findByIdAndDelete(id);
-            console.log(livro)
 
             if (!livro) {
                 return res.status(400).json({ error: 'Nenhum livro encontrado.' });

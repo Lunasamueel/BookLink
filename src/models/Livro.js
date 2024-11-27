@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';  
-import Autor from './Autor.js'
 
 const LivroSchema = new mongoose.Schema({
     id: {

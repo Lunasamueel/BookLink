@@ -1,6 +1,5 @@
 import express, { Router } from 'express';
 import LivroController from '../controllers/LivroController.js';
-import AutorController from '../controllers/AutorController.js';
 
 const routes = express.Router();
 

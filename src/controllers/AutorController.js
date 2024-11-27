@@ -5,7 +5,7 @@ class AutorController {
 
     static async listarAutores(req, res){
         try {
-            const autores = await Autor.find({});
+            const autores = await Autor.find({}).populate('livros');
 
             if(!autores){
                 return res.status(400).json({error: "Nao foram encontrados autores."});
@@ -24,9 +24,10 @@ class AutorController {
         try {
             const { id } = req.params;
 
-            const autor = await Autor.findById(id);
-            console.log(autor)
-
+            const autor = await Autor.findById(id).populate('livros');
+            console.log("autor", autor);
+            
+        
             if (!autor) {
                 return res.status(400).json({ error: 'Nenhum autor encontrado.' });
             }
@@ -71,7 +72,7 @@ class AutorController {
 
             const NovoAutor = new Autor({
                 nome, nacionalidade, dataNascimento, livros
-            })
+            })            
 
             await NovoAutor.save();
             res.status(201).json({ message: 'Autor criado com sucesso!', autor: NovoAutor });
