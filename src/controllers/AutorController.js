@@ -24,9 +24,7 @@ class AutorController {
         try {
             const { id } = req.params;
 
-            const autor = await Autor.findById(id).populate('livros');
-            console.log("autor", autor);
-            
+            const autor = await Autor.findById(id).populate('livros');            
         
             if (!autor) {
                 return res.status(400).json({ error: 'Nenhum autor encontrado.' });
