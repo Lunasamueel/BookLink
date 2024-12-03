@@ -7,19 +7,20 @@ const AutorSchema = new mongoose.Schema({
     },
     nome: {
         type: String,
-        require: true
+        required: [true, "O nome do(a) autor(a) é obrigatório"]
     },
     nacionalidade: {
         type: String,
-        require: true
+        required: [true, "A nacionalidade do(a) autor(a) é obrigatório"]
     },
     dataNascimento: {
         type: Date,
-        require: true
+        required: [true, "A data de nascimento do(a) autor(a) é obrigatório"]
     },
     livros: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Livro'
+        ref: 'Livro',
+        required: [true, "Os livros do(a) autor(a) são obrigatórios"]
     }],
     
 }, {versionKey: false})

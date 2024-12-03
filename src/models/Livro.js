@@ -6,23 +6,31 @@ const LivroSchema = new mongoose.Schema({
     },
     titulo: {
         type: String,
-        require: true
+        required: true
     },
     editora: {
         type: String,
-        require: true
+        required: true
     },
     preco: {
         type: Number,
-        require: true
+        required: true,
+        validate: {
+            validator: Number.isFinite, // Valida se é um número finito
+            message: 'O valor de "Preço" deve ser um número'
+          }
     },
     paginas: {
         type: Number,
-        require: true
+        required: true,
+        validate: {
+            validator: Number.isFinite, // Valida se é um número finito
+            message: 'O valor de "paginas" deve ser um número'
+          }
     },
     anoPublicacao: {
         type: Number,
-        require: true
+        required: true
     },
     autor: { 
         type: mongoose.Schema.Types.ObjectId, 

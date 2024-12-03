@@ -1,56 +1,36 @@
 import '../config/db.js';
-import Livro from '../models/Livro.js'
+import NotFound from '../errors/NotFound.js';
+import livros from '../models/Livro.js'
 
 class LivroController {
 
-    static async listarLivros(req, res) {
-        const listaLivros = await Livro.find({}).populate('autor');
-        res.status(200).json(listaLivros);
-    }
-
-    static async buscarLivroPorTitulo(req, res){
+    static async listarLivros(req, res, next) {
         try {
-            const titulo = req.params.titulo;
 
-            if(titulo.length === 0){
-                return res.status(400).json({error: "O titulo do livro está vazio."})
-            }
-    
-            const livro = await Livro.find({
-                titulo: { $regex: titulo, $options: 'i' }
-              })
-    
-              if (!livro) {
-                return res.status(400).json({ error: 'Nenhum livro encontrado.' });
-            }
-    
-            return res.status(200).json({ message: "Livro encontrado com sucesso.", livro }); 
-        } catch (error) {
-            console.error(error);
-            // Retorna um erro 500 caso ocorra algum problema
-            return res.status(500).json({ error: 'Erro ao buscar os livros por titulo' });
+           
+            const livrosResultado = await livros.find()
+                .populate("autor")
+                .exec();
+
+            res.status(200).json(livrosResultado);
+        } catch (erro) {
+            next(erro);
         }
     }
 
-    
-    static async cadastrarLivro(req, res) {
+    static async buscarLivroPorTitulo(req, res, next) {
         try {
-   
-           const livro = req.body;    
-           
-           if(!livro){
-            res.status(400).json({ error: "Não foi possivel cadastrar o livro" });
-           }
-           await Livro.create(livro);
-           res.status(201).json({ message: 'Livro criado com sucesso', livro });
-          } catch (error) {
-            res.status(500).json({ message: 'Erro no servidor', error: error.message });
-          }
-    }
+            const titulo = req.params.titulo;
+            console.log(titulo);
+            
 
-    static async buscarLivroPorId(req, res) {
-        try {
-            const livro = await Livro.findById(req.params.id).populate('autor');
+            if (titulo.length === 0) {
+                return res.status(400).json({ error: "O titulo do livro está vazio." })
+            }
+
+            const livro = await livros.find({
+                titulo: { $regex: titulo, $options: 'i' }
+            })
 
             if (!livro) {
                 return res.status(400).json({ error: 'Nenhum livro encontrado.' });
@@ -58,12 +38,44 @@ class LivroController {
 
             return res.status(200).json({ message: "Livro encontrado com sucesso.", livro });
         } catch (error) {
-            console.log(error);
-            return res.status(500).json({ error: "Erro ao buscar livro." })
+            console.error(error);
+            // Retorna um erro 500 caso ocorra algum problema
+            next(error);
         }
     }
 
-    static async buscarLivroPorEditora(req, res) {
+
+    static async cadastrarLivro(req, res, next) {
+        try {
+            let livro = new livros(req.body);
+
+            const livroResultado = await livro.save();
+
+            res.status(201).send(livroResultado.toJSON());
+        } catch (erro) {
+            next(erro);
+        }
+    }
+
+    static async buscarLivroPorId(req, res, next) {
+        try {
+            const id = req.params.id;
+      
+            const livroResultado = await livros.findById(id)
+              .populate("autor", "nome")
+              .exec();
+      
+            if (livroResultado !== null) {
+              res.status(200).send(livroResultado);
+            } else {
+              next(new NotFound("Id do livro não localizado."));
+            }
+          } catch (erro) {
+            next(erro);
+          }
+    }
+
+    static async buscarLivroPorEditora(req, res, next) {
         try {
             const { editora } = req.params;
 
@@ -71,51 +83,43 @@ class LivroController {
                 return res.status(400).json({ error: 'O nome da editora deve ser uma string não vazia.' });
             }
 
-            const livros = await Livro.find({
+            const _livros = await livros.find({
                 editora: { $regex: editora, $options: 'i' }  // Case insensitive
             });
 
-            if (livros.length === 0) {
+            if (_livros.length === 0) {
                 return res.status(400).json({ message: `Nenhum livro encontrado para a editora: ${editora}` });
             }
 
-            return res.status(200).json(livros);
+            return res.status(200).json(_livros);
 
         } catch (error) {
-            console.error(error);
             // Retorna um erro 500 caso ocorra algum problema
-            return res.status(500).json({ error: 'Erro ao buscar os livros por editora' });
+            next(error);
         }
     }
 
-    static async atualizarLivro(req, res) {
+    static async atualizarLivro(req, res, next) {
         try {
-            const { id } = req.params;
-            const { titulo, editora, preco, anoPublicacao, paginas } = req.body;
-
-            if (!titulo || !editora || !preco || !anoPublicacao || !paginas) {
-                return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+            const id = req.params.id;
+          
+            const livroResultado = await livros.findByIdAndUpdate(id, {$set: req.body});
+      
+            console.log(livroResultado);
+          
+            if (livroResultado !== null) {
+              res.status(200).send({message: "Livro atualizado com sucesso"});
+            } else {
+              //next(new NaoEncontrado("Id do livro não localizado."));
+              res.status(404).send({error: "Id do livro não localizado"});
             }
-
-            const livro = await Livro.findByIdAndUpdate(id,
-                { titulo, editora, preco, anoPublicacao, paginas },
-                { new: true, runValidators: true }
-            );
-
-            if (!livro) {
-                return res.status(400).json({ error: "Livro não encontrado." })
-            }
-
-            return res.status(200).json(livro);
-        } catch (error) {
-            console.log(error);
-
-            return res.status(500).json({ error: "Erro ao atualizar livro." })
-        }
+          } catch (erro) {
+            next(erro);
+          }
     }
 
     // o metodo busca todos os livros por um preço igual ou abaixo ao passado por parâmetro
-    static async buscarLivroPorPreco(req, res) {
+    static async buscarLivroPorPreco(req, res, next) {
         const { preco } = req.params;
 
         if (isNaN(preco)) {
@@ -126,25 +130,27 @@ class LivroController {
             const livros = await Livro.find({ preco: { $lte: parseFloat(preco) } });
             res.status(200).json(livros);
         } catch (error) {
-            res.status(500).json({ error: 'Erro ao buscar livros por preco.' });
+            next(erro);
         }
     }
 
-    static async excluirLivro(req, res) {
+    static async excluirLivro(req, res, next) {
         try {
-            const { id } = req.params;
-
-            const livro = await Livro.findByIdAndDelete(id);
-
-            if (!livro) {
-                return res.status(400).json({ error: 'Nenhum livro encontrado.' });
+            const id = req.params.id;
+      
+            const livroResultado = await livros.findByIdAndDelete(id);
+      
+            console.log(livroResultado);
+            
+            if (livroResultado !== null) {
+              res.status(200).send({message: "Livro removido com sucesso"});
+            } else {
+             // next(new NaoEncontrado("Id do livro não localizado."));
+             return res.status(400).json({ error: 'OId do livro não localizado' });
             }
-
-            return res.status(200).json({ message: "Livro excluido com sucesso.", livro });
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({ error: "Erro ao excluir livro." })
-        }
+          } catch (erro) {
+            next(erro);
+          }
     }
 
 };
