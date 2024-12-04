@@ -7,7 +7,6 @@ class LivroController {
     static async listarLivros(req, res, next) {
         try {
 
-           
             const livrosResultado = await livros.find()
                 .populate("autor")
                 .exec();
@@ -18,11 +17,26 @@ class LivroController {
         }
     }
 
+    static async buscarLivrosPorFiltro(req, res, next) {
+        try {
+            const { editora, titulo } = req.query;
+
+            const busca = {}
+
+            if (editora) busca.editora = editora;
+            if (titulo) busca.titulo = titulo;
+
+            const livrosResultado = await livros.find(busca);            
+
+            res.status(200).json(livrosResultado);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     static async buscarLivroPorTitulo(req, res, next) {
         try {
             const titulo = req.params.titulo;
-            console.log(titulo);
-            
 
             if (titulo.length === 0) {
                 return res.status(400).json({ error: "O titulo do livro está vazio." })
@@ -60,19 +74,19 @@ class LivroController {
     static async buscarLivroPorId(req, res, next) {
         try {
             const id = req.params.id;
-      
+
             const livroResultado = await livros.findById(id)
-              .populate("autor", "nome")
-              .exec();
-      
+                .populate("autor", "nome")
+                .exec();
+
             if (livroResultado !== null) {
-              res.status(200).send(livroResultado);
+                res.status(200).send(livroResultado);
             } else {
-              next(new NotFound("Id do livro não localizado."));
+                next(new NotFound("Id do livro não localizado."));
             }
-          } catch (erro) {
+        } catch (erro) {
             next(erro);
-          }
+        }
     }
 
     static async buscarLivroPorEditora(req, res, next) {
@@ -102,20 +116,20 @@ class LivroController {
     static async atualizarLivro(req, res, next) {
         try {
             const id = req.params.id;
-          
-            const livroResultado = await livros.findByIdAndUpdate(id, {$set: req.body});
-      
+
+            const livroResultado = await livros.findByIdAndUpdate(id, { $set: req.body });
+
             console.log(livroResultado);
-          
+
             if (livroResultado !== null) {
-              res.status(200).send({message: "Livro atualizado com sucesso"});
+                res.status(200).send({ message: "Livro atualizado com sucesso" });
             } else {
-              //next(new NaoEncontrado("Id do livro não localizado."));
-              res.status(404).send({error: "Id do livro não localizado"});
+                //next(new NaoEncontrado("Id do livro não localizado."));
+                res.status(404).send({ error: "Id do livro não localizado" });
             }
-          } catch (erro) {
+        } catch (erro) {
             next(erro);
-          }
+        }
     }
 
     // o metodo busca todos os livros por um preço igual ou abaixo ao passado por parâmetro
@@ -137,20 +151,20 @@ class LivroController {
     static async excluirLivro(req, res, next) {
         try {
             const id = req.params.id;
-      
+
             const livroResultado = await livros.findByIdAndDelete(id);
-      
+
             console.log(livroResultado);
-            
+
             if (livroResultado !== null) {
-              res.status(200).send({message: "Livro removido com sucesso"});
+                res.status(200).send({ message: "Livro removido com sucesso" });
             } else {
-             // next(new NaoEncontrado("Id do livro não localizado."));
-             return res.status(400).json({ error: 'OId do livro não localizado' });
+                // next(new NaoEncontrado("Id do livro não localizado."));
+                return res.status(400).json({ error: 'OId do livro não localizado' });
             }
-          } catch (erro) {
+        } catch (erro) {
             next(erro);
-          }
+        }
     }
 
 };

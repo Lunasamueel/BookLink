@@ -16,16 +16,22 @@ const LivroSchema = new mongoose.Schema({
         type: Number,
         required: true,
         validate: {
-            validator: Number.isFinite, // Valida se é um número finito
-            message: 'O valor de "Preço" deve ser um número'
+            validator: function(value) {
+              return typeof value === 'Number' && !isNaN(value); // Verifica se o valor é um número
+            },
+            message: 'O campo preço deve ser um número'
           }
     },
     paginas: {
         type: Number,
         required: true,
+        min:[10, "O número de paginas deve estar entre 0 e 5000"],
+        max: [5000, "O número de paginas deve estar entre 0 e 5000"],
         validate: {
-            validator: Number.isFinite, // Valida se é um número finito
-            message: 'O valor de "paginas" deve ser um número'
+            validator: function(value) {
+              return typeof value === 'Number' && !isNaN(value); // Verifica se o valor é um número
+            },
+            message: 'O campo paginas deve ser um número'
           }
     },
     anoPublicacao: {
